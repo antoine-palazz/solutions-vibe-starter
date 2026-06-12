@@ -1,0 +1,36 @@
+# Example Vibe configuration.
+#
+# Vibe reads global config from ~/.vibe/config.toml. This file is a sanitized
+# example of the parts relevant to this repo (the MCP servers the agents in
+# .vibe/agents/ use). Copy what you need into your own ~/.vibe/config.toml and
+# provide the tokens via environment variables — never commit real tokens.
+
+active_model = "mistral-medium-3.5"
+
+# Connectors enable the MCP tool namespaces referenced by the agents
+# (e.g. linear_* in dev.toml, notion_* in po.toml).
+connectors = [
+    { name = "linear", disabled = false },
+    { name = "notion", disabled = false },
+]
+
+[[mcp_servers]]
+name = "linear"
+transport = "http"
+url = "https://mcp.linear.app/mcp"
+api_key_env = "LINEAR_MCP_TOKEN"
+api_key_header = "Authorization"
+api_key_format = "Bearer {token}"
+
+[[mcp_servers]]
+name = "notion"
+transport = "http"
+url = "https://mcp.notion.com/mcp"
+api_key_env = "NOTION_MCP_TOKEN"
+api_key_header = "Authorization"
+api_key_format = "Bearer {token}"
+
+# On-prem note: point these at an internal MCP gateway instead of the public
+# SaaS endpoints — e.g. a custom MCP server fronting Jira/Confluence or other
+# internal systems. The agent files do not change; only the server URLs and
+# token env vars do.

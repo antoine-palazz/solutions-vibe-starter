@@ -1,0 +1,17 @@
+# Hooks — automated actions after agent turns
+
+# Auto-format Python code after any edit
+[[hooks]]
+name = "auto-format"
+type = "post_agent_turn"
+command = "ruff format apps/ --quiet 2>/dev/null || true"
+timeout = 10
+description = "Auto-format Python files after agent edits"
+
+# Compliance audit log — log all agent actions for traceability
+[[hooks]]
+name = "compliance-log"
+type = "post_agent_turn"
+command = "echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) | agent_turn | session=$VIBE_SESSION_ID\" >> .vibe/audit.log"
+timeout = 5
+description = "Append agent activity to audit log for compliance"
