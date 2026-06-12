@@ -1,0 +1,38 @@
+# Minimal local stack for the demo (devops agent — Act 5).
+#   docker compose -f deployment/docker/docker-compose.yml up --build
+#
+# Then:
+#   curl localhost:8000/api/health/check   -> 200, status OK
+#   open http://localhost:3000             -> status page
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      RATE_LIMIT_DEFAULT: "60/minute"
+      # Flip a probe to ERROR to demo the DEGRADED state:
+      # FAKE_DB_DOWN: "true"
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: deployment/docker/Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:8000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+# Optional: a real Postgres to back the database health probe.
+#  postgres:
+#    image: postgres:16-alpine
+#    environment:
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#      POSTGRES_DB: postgres
+#    ports:
+#      - "5432:5432"

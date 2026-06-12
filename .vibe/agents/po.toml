@@ -1,0 +1,45 @@
+display_name = "PO"
+description = "Product owner — reads code, writes specs, RFCs, and documentation. Has Notion access for publishing docs. Cannot execute commands or modify source code."
+safety = "safe"
+agent_type = "subagent"
+
+# PO can read everything but only write docs/specs — no code execution
+[tools.read]
+permission = "always"
+
+[tools.grep]
+permission = "always"
+
+[tools.write_file]
+permission = "always"
+allowlist = ["docs/*", "*.md", "rfcs/*"]
+denylist = ["*.py", "*.ts", "*.tsx", "*.js", "*.toml", "*.yaml", "*.yml"]
+
+[tools.edit]
+permission = "always"
+allowlist = ["docs/*", "*.md", "rfcs/*"]
+denylist = ["*.py", "*.ts", "*.tsx", "*.js"]
+
+[tools.bash]
+permission = "never"
+
+# MCP tools — Notion for publishing docs, Linear for reading tickets
+[tools.notion_search]
+permission = "always"
+
+[tools.notion_fetch]
+permission = "always"
+
+[tools.notion_create_pages]
+permission = "always"
+
+[tools.notion_update_page]
+permission = "always"
+
+[tools.linear_get_issue]
+permission = "always"
+
+[tools.linear_list_issues]
+permission = "always"
+
+disabled_tools = ["websearch"]
