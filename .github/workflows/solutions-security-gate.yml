@@ -40,7 +40,11 @@ jobs:
             base="$(event_value ".pull_request.base.sha")"
             head="$(event_value ".pull_request.head.sha")"
           elif [[ "$(event_value ".before")" == "0000000000000000000000000000000000000000" ]]; then
-            base="$empty_tree"
+            default_branch="$(event_value ".repository.default_branch")"
+            base="$(git merge-base "origin/$default_branch" "$GITHUB_SHA" 2>/dev/null || true)"
+            if [[ -z "$base" ]]; then
+              base="$empty_tree"
+            fi
             head="$GITHUB_SHA"
           else
             base="$(event_value ".before")"
