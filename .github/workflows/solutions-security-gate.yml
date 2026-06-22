@@ -1,0 +1,66 @@
+name: Solutions Security Gate
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pre-commit:
+    name: Solutions Security Gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
+          version: "0.11.17"
+
+      - name: Resolve changed range
+        id: changed-range
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          empty_tree="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+          event_value() {
+            jq -r "$1 // \"\"" "$GITHUB_EVENT_PATH"
+          }
+
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            base="$(event_value ".pull_request.base.sha")"
+            head="$(event_value ".pull_request.head.sha")"
+          elif [[ "$(event_value ".before")" == "0000000000000000000000000000000000000000" ]]; then
+            base="$empty_tree"
+            head="$GITHUB_SHA"
+          else
+            base="$(event_value ".before")"
+            head="$GITHUB_SHA"
+          fi
+
+          all_files=false
+          if [[ "$base" == "$empty_tree" ]] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
+            all_files=true
+          fi
+
+          {
+            echo "base=$base"
+            echo "head=$head"
+            echo "all-files=$all_files"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run Solutions security policy
+        uses: mistralai-solutions/sol-security/.github/actions/solutions-security-pre-commit@main
+        with:
+          from-ref: ${{ steps.changed-range.outputs.base }}
+          to-ref: ${{ steps.changed-range.outputs.head }}
+          all-files: ${{ steps.changed-range.outputs.all-files }}
