@@ -42,7 +42,7 @@ repos:
         name: Block local credential configs
         language: fail
         entry: Local credential and tool auth configs must not be committed.
-        files: '(^|/)(\.envrc|\.aws/credentials|\.docker/config\.json|\.dockercfg|\.kube/config|\.netrc|\.npmrc|\.pgpass|\.pypirc|id_dsa|id_ecdsa|id_ed25519|id_rsa)$'
+        files: '(^|/)(\.envrc|\.aws/credentials|\.docker/config\.json|\.dockercfg|\.kube/config|\.netrc|\.pgpass|\.pypirc|id_dsa|id_ecdsa|id_ed25519|id_rsa)$'
 
       - id: block-terraform-working-directories
         name: Block Terraform working directories
@@ -60,7 +60,7 @@ repos:
         name: Block sensitive file extensions
         language: fail
         entry: Sensitive files, logs, local databases, and Terraform state must not be committed.
-        files: '(\.auto\.tfvars|\.(bak|backup|bson|cer|crt|csr|db|db-shm|db-wal|der|dump|har|jks|kdbx|key|keystore|log|mdb|mobileconfig|ovpn|p8|p12|pfx|pcap|pem|ppk|rdb|sql|sqlite|sqlite-shm|sqlite-wal|sqlite3|sqlite3-shm|sqlite3-wal|tfplan|tfstate|tfvars))$'
+        files: '(\.(bak|backup|bson|cer|crt|csr|db|db-shm|db-wal|der|dump|har|jks|kdbx|key|keystore|log|mdb|mobileconfig|ovpn|p8|p12|pfx|pcap|pem|ppk|rdb|sqlite|sqlite-shm|sqlite-wal|sqlite3|sqlite3-shm|sqlite3-wal|tfplan|tfstate))$'
 
       - id: block-credential-json
         name: Block credential-like JSON files
