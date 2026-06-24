@@ -2,7 +2,6 @@ name: Solutions Security Gate
 
 on:
   pull_request:
-  push:
   workflow_dispatch:
 
 permissions:
@@ -24,47 +23,9 @@ jobs:
           enable-cache: true
           version: "0.11.17"
 
-      - name: Resolve changed range
-        id: changed-range
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          empty_tree="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-
-          event_value() {
-            jq -r "$1 // \"\"" "$GITHUB_EVENT_PATH"
-          }
-
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            base="$(event_value ".pull_request.base.sha")"
-            head="$(event_value ".pull_request.head.sha")"
-          elif [[ "$(event_value ".before")" == "0000000000000000000000000000000000000000" ]]; then
-            default_branch="$(event_value ".repository.default_branch")"
-            base="$(git merge-base "origin/$default_branch" "$GITHUB_SHA" 2>/dev/null || true)"
-            if [[ -z "$base" ]]; then
-              base="$empty_tree"
-            fi
-            head="$GITHUB_SHA"
-          else
-            base="$(event_value ".before")"
-            head="$GITHUB_SHA"
-          fi
-
-          all_files=false
-          if [[ "$base" == "$empty_tree" ]] || ! git cat-file -e "$base^{commit}" 2>/dev/null; then
-            all_files=true
-          fi
-
-          {
-            echo "base=$base"
-            echo "head=$head"
-            echo "all-files=$all_files"
-          } >> "$GITHUB_OUTPUT"
-
       - name: Run Solutions security policy
         uses: mistralai-solutions/sol-security/.github/actions/solutions-security-pre-commit@main
         with:
-          from-ref: ${{ steps.changed-range.outputs.base }}
-          to-ref: ${{ steps.changed-range.outputs.head }}
-          all-files: ${{ steps.changed-range.outputs.all-files }}
+          from-ref: ${{ github.event.pull_request.base.sha }}
+          to-ref: ${{ github.event.pull_request.head.sha }}
+          all-files: ${{ github.event_name != 'pull_request' }}
