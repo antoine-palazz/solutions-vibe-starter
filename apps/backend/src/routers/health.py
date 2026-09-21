@@ -2,6 +2,7 @@ import os
 import socket
 
 from fastapi import APIRouter
+from loguru import logger
 from pydantic import BaseModel
 
 from status import ServiceStatus, Status
@@ -18,9 +19,16 @@ class HealthCheckResult(BaseModel):
 
 
 def _check_database() -> ServiceStatus:
-    """Probe the database by opening a TCP connection."""
-    with socket.create_connection((DB_HOST, DB_PORT), timeout=1):
-        return ServiceStatus(status=Status.OK)
+    """Probe the database by opening a TCP connection.
+
+    Never raises — a failing dependency must not take the health endpoint down.
+    """
+    try:
+        with socket.create_connection((DB_HOST, DB_PORT), timeout=1):
+            return ServiceStatus(status=Status.OK)
+    except OSError as e:
+        logger.error("database probe failed", name="health", host=DB_HOST, port=DB_PORT, error=str(e))
+        return ServiceStatus(status=Status.ERROR, details=str(e))
 
 
 @router.get("/check", response_model=HealthCheckResult)
