@@ -1,22 +1,22 @@
 ---
 name: python-testing
-description: Pytest patterns for FastAPI — fixtures, TestClient, env-driven branches, and what to assert
+description: Patterns pytest pour FastAPI — fixtures, TestClient, branches pilotées par l'environnement, et quoi vérifier
 user-invocable: false
 ---
 
-# Python Testing (pytest)
+# Tests Python (pytest)
 
 ## Structure
-- Mirror the source tree under `tests/`
-- One behaviour per test; name tests `test_<unit>_<expectation>`
-- Configure import paths in `pyproject.toml`:
+- Refléter l'arborescence source sous `tests/`
+- Un comportement par test ; nommer les tests `test_<unit>_<expectation>`
+- Configurer les chemins d'import dans `pyproject.toml` :
   ```toml
   [tool.pytest.ini_options]
   pythonpath = ["src"]
   ```
 
-## FastAPI endpoints
-- Use `fastapi.testclient.TestClient` for synchronous endpoint tests:
+## Endpoints FastAPI
+- Utiliser `fastapi.testclient.TestClient` pour les tests d'endpoints synchrones :
   ```python
   from fastapi.testclient import TestClient
   from main import app
@@ -28,14 +28,19 @@ user-invocable: false
       assert resp.status_code == 200
       assert resp.json()["status"] == "OK"
   ```
-- To test async helpers directly, use `httpx.AsyncClient` with an ASGI transport.
+- Pour tester directement des helpers async, utiliser `httpx.AsyncClient` avec un
+  transport ASGI.
 
 ## Fixtures & isolation
-- Use `pytest.fixture` for shared setup; keep fixtures small and explicit
-- Use `monkeypatch.setenv(...)` to drive config-dependent branches
-- Avoid shared mutable state between tests (in-memory stores, module globals)
+- Utiliser `pytest.fixture` pour la configuration partagée ; garder les fixtures
+  petites et explicites
+- Utiliser `monkeypatch.setenv(...)` pour piloter les branches dépendantes de la
+  config
+- Éviter l'état mutable partagé entre les tests (stores en mémoire, variables
+  globales de module)
 
-## What to assert
-- Test both the success and the failure path
-- Every bug fix ships with a regression test that fails before the fix
-- Assert on status codes AND response shape, not just one
+## Quoi vérifier
+- Tester à la fois le chemin de succès et le chemin d'échec
+- Toute correction de bug est livrée avec un test de régression qui échoue avant le
+  correctif
+- Vérifier les codes de statut ET la forme de la réponse, pas seulement l'un des deux

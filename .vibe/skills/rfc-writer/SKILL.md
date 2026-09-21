@@ -1,63 +1,71 @@
 ---
 name: rfc-writer
-description: Draft technical RFCs and design documents following the standard template
+description: Rédiger des RFC techniques et des documents de conception suivant le template standard
 user-invocable: true
 ---
 
-# RFC Writer
+# Rédacteur de RFC
 
-When asked to write an RFC or design document, follow this structure:
+Lorsqu'on vous demande de rédiger une RFC ou un document de conception, suivre cette
+structure :
 
 ## Template
 
 ```markdown
-# RFC: <Title>
+# RFC : <Titre>
 
-**Author:** <name>
-**Date:** <date>
-**Status:** Draft
+**Auteur :** <nom>
+**Direction :** <direction / entité CDC>
+**Date :** <date>
+**Statut :** Brouillon
+**Classification :** <publique / interne / confidentielle>
+**Impact sécurité / souveraineté :** <résumé de l'impact ; données et exécution en Europe ?>
 
-## Context
+## Contexte
 
-What is the problem or opportunity? Why are we making this decision now?
-Include relevant metrics, incidents, or user feedback that motivated this.
+Quel est le problème ou l'opportunité ? Pourquoi prend-on cette décision maintenant ?
+Inclure les métriques, incidents ou retours utilisateurs pertinents qui l'ont motivée.
 
-## Decision
+## Décision
 
-What are we doing? Describe the chosen approach clearly and concisely.
-Include architecture diagrams or code snippets where helpful.
+Que fait-on ? Décrire l'approche retenue clairement et de façon concise.
+Inclure des schémas d'architecture ou des extraits de code lorsque c'est utile.
 
-## Alternatives Considered
+## Alternatives envisagées
 
-| Alternative | Pros | Cons | Why Not |
-|------------|------|------|---------|
+| Alternative | Avantages | Inconvénients | Pourquoi écartée |
+|------------|-----------|---------------|------------------|
 | Option A | ... | ... | ... |
 | Option B | ... | ... | ... |
 
-## Consequences
+## Conséquences
 
-### Positive
-- What improves?
+### Positives
+- Qu'est-ce qui s'améliore ?
 
-### Negative
-- What tradeoffs are we accepting?
+### Négatives
+- Quels compromis acceptons-nous ?
 
-### Risks
-- What could go wrong? How do we mitigate?
+### Risques
+- Qu'est-ce qui pourrait mal tourner ? Comment l'atténuer ?
 
-## Implementation Plan
+## Plan d'implémentation
 
-1. Step 1 — description (owner, timeline)
-2. Step 2 — ...
+1. Étape 1 — description (responsable, échéance)
+2. Étape 2 — ...
 
-## Open Questions
+## Questions ouvertes
 
-- Questions that still need answers before finalizing
+- Questions qui restent à trancher avant de finaliser
 ```
 
-## Guidelines
-- Be factual and concise — RFCs are for future readers, not present audiences
-- Include code examples for API changes
-- Reference existing patterns in the codebase
-- Keep the "Alternatives" section honest — show you considered other options
-- The RFC should be actionable: someone should be able to implement from it
+## Bonnes pratiques
+- Rester factuel et concis — les RFC s'adressent aux lecteurs futurs, pas au public
+  présent
+- Inclure des exemples de code pour les changements d'API
+- Référencer les patterns existants dans le code
+- Garder la section « Alternatives » honnête — montrer que d'autres options ont été
+  envisagées
+- La RFC doit être actionnable : quelqu'un doit pouvoir l'implémenter à partir d'elle
+- En contexte CDC, renseigner systématiquement la classification et l'impact
+  sécurité / souveraineté de l'en-tête

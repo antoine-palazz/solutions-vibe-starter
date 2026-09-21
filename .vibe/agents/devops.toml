@@ -1,9 +1,9 @@
 display_name = "DevOps"
-description = "DevOps engineer — build, deploy, infrastructure. Has Linear access to update deployment status. Cannot modify application source code."
+description = "Ingénieur DevOps — build, déploiement, infrastructure. A accès à Linear pour mettre à jour le statut de déploiement. Ne peut pas modifier le code source applicatif."
 safety = "destructive"
-agent_type = "subagent"
+agent_type = "agent"
 
-# DevOps can run infra commands but not touch app code
+# Le DevOps peut lancer des commandes d'infra mais pas toucher au code applicatif
 [tools.bash]
 permission = "always"
 allowlist = ["docker*", "docker-compose*", "kubectl*", "helm*", "curl*", "ls*", "cat*", "git*", "make*"]
@@ -25,7 +25,7 @@ permission = "ask"
 allowlist = ["deployment/*", "docker-compose*", "Dockerfile*", "*.yaml", "*.yml"]
 denylist = ["apps/*"]
 
-# MCP tools — Linear for updating deployment status
+# Outils MCP — Linear pour mettre à jour le statut de déploiement
 [tools.linear_get_issue]
 permission = "always"
 

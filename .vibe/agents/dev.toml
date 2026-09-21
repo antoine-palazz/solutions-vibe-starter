@@ -1,9 +1,9 @@
-display_name = "Dev"
-description = "Software engineer — code, debug, test. Full access to code, terminal, Linear and Notion."
+display_name = "Développeur"
+description = "Ingénieur logiciel — coder, déboguer, tester. Accès complet au code, au terminal, à Linear et Notion."
 safety = "neutral"
 agent_type = "agent"
 
-# Dev can read, write, and execute — standard dev workflow
+# Le dev peut lire, écrire et exécuter — workflow de dev standard
 [tools.bash]
 permission = "always"
 allowlist = ["pytest*", "python*", "uv *", "git *", "ls*", "cat*", "ruff*", "curl*"]
@@ -21,8 +21,8 @@ permission = "always"
 [tools.grep]
 permission = "always"
 
-# MCP tools — Linear for ticket management, Notion for docs.
-# These require the matching MCP servers to be configured (see .vibe/config.toml.example).
+# Outils MCP — Linear pour la gestion des tickets, Notion pour la doc.
+# Ils nécessitent que les serveurs MCP correspondants soient configurés (voir .vibe/config.toml.example).
 [tools.linear_get_issue]
 permission = "always"
 

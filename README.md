@@ -1,116 +1,128 @@
-# solutions-vibe-starter
+# Exemple de configuration Vibe — Caisse des Dépôts
 
-Example **Vibe** configuration over a minimal full-stack app, set up as a small
-hands-on exercise.
+Exemple de configuration **Vibe** aux couleurs de la Caisse des Dépôts, posée sur
+une petite application full-stack minimale, présentée comme un exercice pratique.
 
-> ⚠️ **These are examples to adapt, not a turnkey solution.** There is no
-> one-size-fits-all setup — agents, skills, hooks and permissions should be tuned
-> to your team, your roles, and your security requirements. The app behind the
-> configs is a deliberately minimal placeholder; the value is in `.vibe/`.
+> ⚠️ **Ce sont des exemples à adapter, pas une solution clé en main.** Il n'existe
+> pas de configuration universelle — agents, skills, hooks et permissions doivent
+> être réglés selon votre équipe, vos rôles et vos exigences de sécurité. L'app
+> derrière ces configs est une application d'exemple délibérément minimale ; la
+> valeur est dans `.vibe/`.
 
-## What this shows
+## Ce que ça montre
 
-Vibe isn't just a CLI — you configure a *team* of agents, each with its own role,
-permissions, and skills. This repo packages a working example of that setup:
-three role-based agents, reusable skills, automation hooks, project conventions,
-and MCP connectors — over a tiny FastAPI + Next.js app so everything actually runs.
+Vibe n'est pas qu'un CLI — vous configurez une *équipe* d'agents, chacun avec son
+rôle, ses permissions et ses skills. Ce repo réunit un exemple fonctionnel de cette
+configuration : trois agents par rôle, des skills réutilisables, des hooks
+d'automatisation, des conventions de projet et des connecteurs MCP — le tout sur une
+petite app FastAPI + Next.js pour que tout tourne réellement. Le message central :
+« on ne configure pas un outil, on configure une équipe » — utile pour une
+institution publique et régulée comme la CDC, où les rôles et les garde-fous
+comptent autant que le code.
 
-## The exercise
+## L'exercice
 
-The repo ships at a **"before" state** with two pieces of work to do, so you can
-replay a full session live with Vibe (see **[`DEMO.md`](./DEMO.md)** for the
-step-by-step walkthrough):
+Le repo est livré dans un **état « avant »** avec deux travaux à réaliser, pour que
+vous puissiez rejouer une session complète en direct avec Vibe (voir
+**[`DEMO.md`](./DEMO.md)** pour le pas-à-pas) :
 
-1. **A bug to fix** — `GET /api/health/check` returns **500** when the database is
-   down instead of degrading gracefully.
-2. **A feature to build** — request rate limiting.
+1. **Un bug à corriger** — `GET /api/health/check` renvoie **500** quand la base de
+   données est indisponible, au lieu de se dégrader proprement.
+2. **Une fonctionnalité à construire** — la limitation de débit (rate limiting) des
+   requêtes.
 
-The completed version (fix + feature + tests + RFC) lives on the **`solution`**
-branch (`git switch solution`) as a reference and a presenter fallback.
+La version aboutie (correctif + fonctionnalité + tests + RFC) se reconstruit en
+rejouant le scénario du pas-à-pas ; elle sert de fil conducteur pour la démo.
 
-## What's inside
+## Ce qu'il y a dedans
 
-| Piece | Where | Purpose |
+| Élément | Où | Rôle |
 |---|---|---|
-| Role agents | `.vibe/agents/{dev,po,devops}.toml` | Three roles with granular tool permissions |
-| Hooks | `.vibe/hooks.toml` | Auto-format + append-only compliance audit log |
-| Skills | `.vibe/skills/*` | Reusable playbooks (FastAPI, conventions, RFC, security, testing) |
-| Project handbook | `AGENTS.md` | Conventions Vibe applies automatically in this repo |
-| MCP config | `.vibe/config.toml.example` | How to wire Linear/Notion — or an on-prem MCP gateway |
-| Demo walkthrough | `DEMO.md` | The live session script (bug → fix → feature → deploy → docs) |
-| Example app | `apps/`, `deployment/` | Minimal FastAPI + Next.js so the configs run |
+| Agents par rôle | `.vibe/agents/{dev,po,devops}.toml` | Trois rôles avec des permissions d'outils granulaires |
+| Hooks | `.vibe/hooks.toml` | Auto-formatage + journal d'audit de conformité en ajout seul |
+| Skills | `.vibe/skills/*` | Playbooks réutilisables (FastAPI, conventions, RFC, sécurité, tests) |
+| Guide du projet | `AGENTS.md` | Conventions que Vibe applique automatiquement dans ce repo |
+| Config MCP | `.vibe/config.toml.example` | Comment câbler Linear/Notion — ou une gateway MCP interne on-prem |
+| Pas-à-pas de démo | `DEMO.md` | Le script de la session live (bug → correctif → fonctionnalité → déploiement → docs) |
+| App d'exemple | `apps/`, `deployment/` | FastAPI + Next.js minimal pour que les configs tournent |
 
-### The three agents
+### Les trois agents
 
-- **`@dev`** — full code access (read/write/edit, bash allowlist, Linear + Notion MCP). `safety = neutral`.
-- **`@po`** — reads code, writes only docs/specs (`docs/*`, `*.md`); **no command execution**. `safety = safe`.
-- **`@devops`** — docker/kubectl/helm, can edit `deployment/*` but **not** `apps/*`. `safety = destructive`.
+- **`@dev`** — accès complet au code (lecture/écriture/édition, liste d'autorisation
+  bash, MCP Linear + Notion). `safety = neutral`.
+- **`@po`** — lit le code, n'écrit que docs/specs (`docs/*`, `*.md`) ; **aucune
+  exécution de commande**. `safety = safe`.
+- **`@devops`** — docker/kubectl/helm, peut éditer `deployment/*` mais **pas**
+  `apps/*`. `safety = destructive`.
 
-Switch between them live with **`Shift+Tab`**. Each `.toml` declares per-tool
-permissions (`always` / `ask` / `never`) with `allowlist`/`denylist` patterns, so
-the PO can never run a command and the DevOps agent can never touch app code.
+Basculez de l'un à l'autre en direct avec **`Shift+Tab`**. Chaque `.toml` déclare
+des permissions par outil (`always` / `ask` / `never`) avec des motifs
+`allowlist`/`denylist`, si bien que le PO ne peut jamais lancer de commande et que
+l'agent DevOps ne peut jamais toucher au code applicatif.
 
-## Two layers of configuration
+## Deux niveaux de configuration
 
-| Concept | Scope | Examples | Where |
+| Concept | Portée | Exemples | Où |
 |---|---|---|---|
-| **AGENTS.md** | This repo | conventions, architecture, test patterns | `AGENTS.md` |
-| **Skills** | Cross-repo | `fastapi`, `company-conventions`, `rfc-writer`, `security-review`, `python-testing` | `.vibe/skills/` or `~/.vibe/skills/` |
-| **Agents** | Project or global | the three roles here | `.vibe/agents/` or `~/.vibe/agents/` |
+| **AGENTS.md** | Ce repo | conventions, architecture, patterns de test | `AGENTS.md` |
+| **Skills** | Multi-repo | `fastapi`, `company-conventions`, `rfc-writer`, `security-review`, `python-testing` | `.vibe/skills/` ou `~/.vibe/skills/` |
+| **Agents** | Projet ou global | les trois rôles présents ici | `.vibe/agents/` ou `~/.vibe/agents/` |
 
-> AGENTS.md is the **project handbook**. Skills are the **company toolbox**. A new
-> developer clones the repo and gets the conventions; they install the skills and
-> get the company best-practices everywhere.
+> AGENTS.md est le **guide du projet**. Les skills sont la **boîte à outils de
+> l'entreprise**. Un nouveau développeur clone le repo et récupère les conventions ;
+> il installe les skills et récupère les bonnes pratiques de l'entreprise partout.
 
-Skills committed under `.vibe/skills/` are scoped to this repo. To reuse them
-across repositories, move them to `~/.vibe/skills/`. The agent files don't change.
+Les skills commitées sous `.vibe/skills/` sont limitées à ce repo. Pour les
+réutiliser sur plusieurs repositories, déplacez-les vers `~/.vibe/skills/`. Les
+fichiers d'agents, eux, ne changent pas.
 
-## Quickstart
+## Démarrage rapide
 
 ```bash
-# 1. Run an agent (Shift+Tab cycles dev → po → devops)
+# 1. Lancer un agent (Shift+Tab fait défiler dev → po → devops)
 cd solutions-vibe-starter
 vibe --agent dev
 
-# 2. (optional) Wire MCP — copy the relevant parts into ~/.vibe/config.toml and
-#    export the tokens. See .vibe/config.toml.example
-/mcp                       # check connected servers from inside Vibe
+# 2. (optionnel) Câbler MCP — copier les parties utiles dans ~/.vibe/config.toml et
+#    exporter les tokens. Voir .vibe/config.toml.example
+/mcp                       # vérifier les serveurs connectés depuis Vibe
 
-# 3. Run the app
+# 3. Lancer l'app
 cd apps/backend && uv run pytest                                   # tests
 cd apps/backend && uv run uvicorn main:app --app-dir src --reload  # http://localhost:8000
 cd apps/frontend && pnpm install && pnpm dev                       # http://localhost:3000
 
-# ...or the whole stack at once
+# ...ou toute la stack d'un coup
 docker compose -f deployment/docker/docker-compose.yml up --build
 ```
 
-> On a fresh clone `GET /api/health/check` returns 500 (no database running) —
-> that's issue #1, the bug to fix. Follow [`DEMO.md`](./DEMO.md).
+> Sur un clone frais, `GET /api/health/check` renvoie 500 (aucune base de données ne
+> tourne) — c'est le point n°1, le bug à corriger. Suivez [`DEMO.md`](./DEMO.md).
 
-Hooks fire automatically after every agent turn: Python is auto-formatted and each
-turn is appended to `.vibe/audit.log` (a simple, auditable trail — useful in
-regulated environments). For CI/CD, run Vibe headless:
+Les hooks se déclenchent automatiquement après chaque tour d'agent : le Python est
+auto-formaté et chaque tour est ajouté à `.vibe/audit.log` (une piste simple et
+auditable — utile en environnement régulé). Pour la CI/CD, lancez Vibe en mode
+headless :
 
 ```bash
 vibe -p "run all tests and report failures" --output json
 ```
 
-## Repository structure
+## Structure du repository
 
 ```
 solutions-vibe-starter/
 ├── .vibe/
-│   ├── agents/{dev,po,devops}.toml   # role-based agents with scoped permissions
-│   ├── hooks.toml                    # auto-format + compliance audit log
-│   ├── config.toml.example           # MCP server setup (sanitized)
+│   ├── agents/{dev,po,devops}.toml   # agents par rôle avec permissions cadrées
+│   ├── hooks.toml                    # auto-formatage + journal d'audit de conformité
+│   ├── config.toml.example           # configuration des serveurs MCP (assainie)
 │   └── skills/                       # fastapi · company-conventions · rfc-writer
 │       └── ...                       # security-review · python-testing
-├── AGENTS.md                         # project conventions (loaded automatically)
-├── DEMO.md                           # live walkthrough script
+├── AGENTS.md                         # conventions du projet (chargées automatiquement)
+├── DEMO.md                           # script du pas-à-pas live
 ├── apps/
-│   ├── backend/                      # minimal FastAPI (health check — has the bug)
-│   └── frontend/                     # minimal Next.js status page
+│   ├── backend/                      # FastAPI minimal (health-check — contient le bug)
+│   └── frontend/                     # page de statut Next.js minimale
 ├── deployment/docker/                # docker-compose + Dockerfiles
 └── .env.example
 ```

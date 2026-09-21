@@ -1,19 +1,20 @@
 ---
 name: fastapi
-description: FastAPI patterns, middleware, dependency injection, and testing best practices
+description: Patterns FastAPI, middleware, injection de dépendances et bonnes pratiques de test
 user-invocable: false
 ---
 
-# FastAPI Patterns
+# Patterns FastAPI
 
 ## Routing
-- Use `APIRouter` with `prefix` and `tags` for organization
-- Group related endpoints in a single router file
-- Use dependency injection via `Depends()` for shared logic (auth, db sessions)
+- Utiliser `APIRouter` avec `prefix` et `tags` pour l'organisation
+- Regrouper les endpoints liés dans un même fichier de router
+- Utiliser l'injection de dépendances via `Depends()` pour la logique partagée
+  (auth, sessions db)
 
 ## Middleware
-- Use `@app.middleware("http")` for cross-cutting concerns
-- For rate limiting, use `slowapi` with `Limiter`:
+- Utiliser `@app.middleware("http")` pour les préoccupations transverses
+- Pour le rate limiting, utiliser `slowapi` avec `Limiter` :
   ```python
   from slowapi import Limiter
   from slowapi.util import get_remote_address
@@ -25,13 +26,16 @@ user-invocable: false
   async def endpoint(request: Request):
       ...
   ```
-- Configure limits via environment variables for per-environment flexibility
+- Configurer les limites via des variables d'environnement pour une flexibilité par
+  environnement
 
-## Error Handling
-- Always wrap external service calls in try/except
-- Return structured error responses with proper HTTP codes
-- Use `HTTPException` for expected errors, middleware for unexpected ones
-- Health check endpoints must never crash — return degraded status instead:
+## Gestion des erreurs
+- Toujours envelopper les appels de services externes dans un try/except
+- Renvoyer des réponses d'erreur structurées avec les bons codes HTTP
+- Utiliser `HTTPException` pour les erreurs attendues, un middleware pour les
+  inattendues
+- Les endpoints de health-check ne doivent jamais crasher — renvoyer plutôt un
+  statut dégradé :
   ```python
   try:
       status = await service.get_status()
@@ -40,17 +44,17 @@ user-invocable: false
       status = ServiceStatus(status=Status.ERROR, message=str(e))
   ```
 
-## Testing
-- Use `pytest` with `httpx.AsyncClient` for endpoint tests:
+## Tests
+- Utiliser `pytest` avec `httpx.AsyncClient` pour les tests d'endpoints :
   ```python
   async with AsyncClient(app=app, base_url="http://test") as client:
       response = await client.get("/api/health/check")
       assert response.status_code == 200
   ```
-- Test both success and error paths
-- Use `pytest.fixture` for shared test setup
+- Tester les chemins de succès et d'erreur
+- Utiliser `pytest.fixture` pour la configuration de test partagée
 
-## Pydantic Models
-- Define request/response models with Pydantic v2
-- Use `model_validate()` for ORM → DTO conversion
-- Keep API models in a dedicated `models/api_models.py`
+## Modèles Pydantic
+- Définir les modèles de requête/réponse avec Pydantic v2
+- Utiliser `model_validate()` pour la conversion ORM → DTO
+- Garder les modèles d'API dans un `models/api_models.py` dédié

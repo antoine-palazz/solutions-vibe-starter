@@ -2,7 +2,7 @@
 #   docker compose -f deployment/docker/docker-compose.yml up --build
 #
 # Then:
-#   curl localhost:8000/api/health/check   -> 200, status OK
+#   curl localhost:8000/api/health/check   -> 200 (DEGRADED: no database wired in below)
 #   open http://localhost:3000             -> status page
 services:
   backend:
@@ -12,9 +12,11 @@ services:
     ports:
       - "8000:8000"
     environment:
-      RATE_LIMIT_DEFAULT: "60/minute"
-      # Flip a probe to ERROR to demo the DEGRADED state:
-      # FAKE_DB_DOWN: "true"
+      # Rate limiting (in-memory limiter — see apps/backend/src/rate_limit.py):
+      RATE_LIMIT_REQUESTS: "60"
+      RATE_LIMIT_WINDOW_SECONDS: "60"
+      # Uncomment the postgres service below and point the probe at it for a healthy DB:
+      # DB_HOST: "postgres"
 
   frontend:
     build:

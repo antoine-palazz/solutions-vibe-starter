@@ -1,24 +1,24 @@
 ---
 name: company-conventions
-description: Company-wide engineering standards — commit messages, logging, PR templates, code review
+description: Conventions d'ingénierie de l'entreprise — messages de commit, logging, templates de PR, revue de code
 user-invocable: true
 ---
 
-# Company Engineering Conventions
+# Conventions d'ingénierie — Caisse des Dépôts
 
-## Commit Messages
-Follow conventional commits format:
+## Messages de commit
+Suivre le format des commits conventionnels :
 ```
 <type>(<scope>): <subject>
 
 <body>
 ```
 
-Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`
-Scope: module or area affected (e.g., `health`, `auth`, `deploy`)
-Subject: imperative, lowercase, no period at end
+Types : `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`
+Scope : module ou zone concernée (par ex. `health`, `auth`, `deploy`)
+Sujet : à l'impératif, en minuscules, sans point final
 
-Example:
+Exemple :
 ```
 fix(health): handle service unavailability gracefully
 
@@ -27,29 +27,44 @@ service was down. Now returns degraded status with error details.
 ```
 
 ## Logging
-- Use structured logging with kwargs — never f-strings in log messages
-- Pattern: `logger.info("action description", key1=value1, key2=value2)`
-- Always include a `name` field for the originating service/module
-- Log levels: DEBUG for internal flow, INFO for business events, WARNING for recoverable issues, ERROR for failures
+- Utiliser un logging structuré avec des kwargs — jamais de f-strings dans les
+  messages de log
+- Pattern : `logger.info("action description", key1=value1, key2=value2)`
+- Toujours inclure un champ `name` pour le service/module d'origine
+- Niveaux de log : DEBUG pour le flux interne, INFO pour les événements métier,
+  WARNING pour les problèmes récupérables, ERROR pour les échecs
 
-## Pull Request Template
+## Template de Pull Request
 ```markdown
-## Context
-Why this change is needed.
+## Contexte
+Pourquoi ce changement est nécessaire.
 
-## Implementation
-Key design decisions and tradeoffs.
+## Implémentation
+Décisions de conception clés et compromis.
 
-## Checks
-- [ ] Tests pass
-- [ ] No regressions
-- [ ] Conventions followed (logging, error handling, types)
+## Vérifications
+- [ ] Les tests passent
+- [ ] Aucune régression
+- [ ] Conventions respectées (logging, gestion des erreurs, types)
 ```
 
-## Code Review Checklist
-When reviewing code, verify:
-- [ ] Error handling: all external calls wrapped, no raw 500s
-- [ ] Logging: structured with kwargs, appropriate levels
-- [ ] Types: all public functions have type hints
-- [ ] Tests: new code has tests, bug fixes have regression tests
-- [ ] Security: no secrets in code, no SQL injection, proper input validation
+## Checklist de revue de code
+Lors d'une revue de code, vérifier :
+- [ ] Gestion des erreurs : tous les appels externes enveloppés, aucun 500 brut
+- [ ] Logging : structuré avec kwargs, niveaux appropriés
+- [ ] Types : toutes les fonctions publiques ont des annotations de type
+- [ ] Tests : le nouveau code a des tests, les corrections de bug ont un test de
+  régression
+- [ ] Sécurité : aucun secret dans le code, pas d'injection SQL, validation des
+  entrées correcte
+
+## Spécificités CDC
+- **Revue de code obligatoire** : toute modification passe par une PR relue par au
+  moins un pair avant merge — aucun push direct sur les branches protégées.
+- **Gestion des secrets** : jamais de secret dans le code ni dans les logs ; utiliser
+  des variables d'environnement ou un gestionnaire de secrets (voir la skill
+  `security-review`).
+- **Souveraineté** : les données et l'exécution restent en Europe. Toute dépendance
+  ou service externe qui déroge à ce principe doit être signalé et validé.
+- **Traçabilité** : les actions sensibles sont journalisées (voir le hook
+  `compliance-log` dans `.vibe/hooks.toml`).
