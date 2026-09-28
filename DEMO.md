@@ -57,12 +57,21 @@ rôles : le dev code, le PO écrit la doc et ne peut rien exécuter, le devops d
 mais ne peut pas toucher au code applicatif. Chacun tient en quelques lignes de
 TOML. »*
 
-**Skills — `.vibe/skills/`.** Des playbooks réutilisables que les agents mobilisent
+**Skills — `.agents/skills/`.** Des playbooks réutilisables que les agents mobilisent
 automatiquement : `fastapi`, `company-conventions`, `rfc-writer`, `security-review`,
 `python-testing`. Ouvrez-en un (par ex. `security-review/SKILL.md`). *« Les skills
 sont la boîte à outils de l'entreprise — des bonnes pratiques qui voyagent d'un repo
-à l'autre. Commitées ici pour ce repo ; déplacez-les vers `~/.vibe/skills/` pour les
-partager partout. »*
+à l'autre. Commitées ici pour ce repo ; déplacez-les vers `~/.agents/skills/` pour
+les partager partout. »* Insistez sur l'emplacement : `.agents/skills/` est le
+**répertoire standard, indépendant de l'outil** (le même que lisent Vibe, Claude,
+OpenCode…), et non un dossier propriétaire — vos bonnes pratiques restent portables
+si l'équipe change d'assistant. *« Un point qui compte pour une institution
+souveraine : on ne se verrouille pas sur un outil. »*
+
+> **`user-invocable`.** Vous pouvez appeler une skill au slash (`/company-conventions`).
+> Ce champ vaut **`true` par défaut** — une skill est donc invocable même sans le
+> déclarer (voir `fastapi`, qui l'omet) ; mettez `user-invocable: false` pour la
+> réserver au modèle et la masquer des commandes slash (voir `python-testing`).
 
 **Connecteurs (MCP) — `.vibe/config.toml.example` + `/mcp`.** Lancez `/mcp` pour
 afficher les serveurs connectés — *« voilà comment les agents atteignent vos

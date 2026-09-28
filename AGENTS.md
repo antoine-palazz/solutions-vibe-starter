@@ -1,8 +1,8 @@
 # Conventions du projet — Vibe Starter (Caisse des Dépôts)
 
 > Ce fichier est le guide du projet. Vibe le charge automatiquement, si bien que
-> chaque agent suit les mêmes conventions. Les **skills** (dans `.vibe/skills/` ou
-> `~/.vibe/skills/`) sont la boîte à outils multi-repo ; **ce fichier**, lui,
+> chaque agent suit les mêmes conventions. Les **skills** (dans `.agents/skills/` ou
+> `~/.agents/skills/`) sont la boîte à outils multi-repo ; **ce fichier**, lui,
 > contient ce qui est spécifique à *ce* repo.
 
 > Contexte CDC : institution publique en environnement régulé. Les données et

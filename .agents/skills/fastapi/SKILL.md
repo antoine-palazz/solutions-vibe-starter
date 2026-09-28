@@ -1,7 +1,6 @@
 ---
 name: fastapi
 description: Patterns FastAPI, middleware, injection de dépendances et bonnes pratiques de test
-user-invocable: false
 ---
 
 # Patterns FastAPI

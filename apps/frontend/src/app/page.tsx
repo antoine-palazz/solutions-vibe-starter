@@ -51,7 +51,8 @@ export default function Home() {
         <h1 className="text-2xl font-semibold">Vibe Starter — Caisse des Dépôts</h1>
         <p className="text-sm text-neutral-400">
           Application d'exemple minimale. Tout l'intérêt de ce repo est la{" "}
-          configuration <code className="font-mono text-neutral-200">.vibe/</code>.
+          configuration <code className="font-mono text-neutral-200">.vibe/</code> et{" "}
+          <code className="font-mono text-neutral-200">.agents/skills/</code>.
         </p>
       </header>
 

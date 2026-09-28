@@ -1,7 +1,6 @@
 ---
 name: rfc-writer
 description: Rédiger des RFC techniques et des documents de conception suivant le template standard
-user-invocable: true
 ---
 
 # Rédacteur de RFC
