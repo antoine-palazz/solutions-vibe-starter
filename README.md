@@ -7,7 +7,7 @@ une petite application full-stack minimale, présentée comme un exercice pratiq
 > pas de configuration universelle — agents, skills, hooks et permissions doivent
 > être réglés selon votre équipe, vos rôles et vos exigences de sécurité. L'app
 > derrière ces configs est une application d'exemple délibérément minimale ; la
-> valeur est dans `.vibe/`.
+> valeur est dans `.vibe/` et `.agents/skills/`.
 
 ## Ce que ça montre
 
@@ -40,7 +40,7 @@ rejouant le scénario du pas-à-pas ; elle sert de fil conducteur pour la démo.
 |---|---|---|
 | Agents par rôle | `.vibe/agents/{dev,po,devops}.toml` | Trois rôles avec des permissions d'outils granulaires |
 | Hooks | `.vibe/hooks.toml` | Auto-formatage + journal d'audit de conformité en ajout seul |
-| Skills | `.vibe/skills/*` | Playbooks réutilisables (FastAPI, conventions, RFC, sécurité, tests) |
+| Skills | `.agents/skills/*` | Playbooks réutilisables (FastAPI, conventions, RFC, sécurité, tests) — dans le répertoire **standard, indépendant de l'outil** |
 | Guide du projet | `AGENTS.md` | Conventions que Vibe applique automatiquement dans ce repo |
 | Config MCP | `.vibe/config.toml.example` | Comment câbler Linear/Notion — ou une gateway MCP interne on-prem |
 | Pas-à-pas de démo | `DEMO.md` | Le script de la session live (bug → correctif → fonctionnalité → déploiement → docs) |
@@ -65,16 +65,27 @@ l'agent DevOps ne peut jamais toucher au code applicatif.
 | Concept | Portée | Exemples | Où |
 |---|---|---|---|
 | **AGENTS.md** | Ce repo | conventions, architecture, patterns de test | `AGENTS.md` |
-| **Skills** | Multi-repo | `fastapi`, `company-conventions`, `rfc-writer`, `security-review`, `python-testing` | `.vibe/skills/` ou `~/.vibe/skills/` |
+| **Skills** | Multi-repo | `fastapi`, `company-conventions`, `rfc-writer`, `security-review`, `python-testing` | `.agents/skills/` (standard) ou `~/.agents/skills/` |
 | **Agents** | Projet ou global | les trois rôles présents ici | `.vibe/agents/` ou `~/.vibe/agents/` |
 
 > AGENTS.md est le **guide du projet**. Les skills sont la **boîte à outils de
 > l'entreprise**. Un nouveau développeur clone le repo et récupère les conventions ;
 > il installe les skills et récupère les bonnes pratiques de l'entreprise partout.
 
-Les skills commitées sous `.vibe/skills/` sont limitées à ce repo. Pour les
-réutiliser sur plusieurs repositories, déplacez-les vers `~/.vibe/skills/`. Les
-fichiers d'agents, eux, ne changent pas.
+Les skills de ce repo vivent dans **`.agents/skills/`** — le répertoire *standard,
+indépendant de l'outil* (le même que lisent Vibe, Claude, OpenCode, etc.), et non
+dans un dossier propriétaire à un seul outil. C'est le placement à privilégier :
+vos bonnes pratiques restent portables si l'équipe change d'assistant. Vibe lit
+aussi `.vibe/skills/` (spécifique à Vibe) si vous préférez, mais l'exemple ici
+pousse le standard. Commitées sous `.agents/skills/`, elles sont limitées à ce
+repo ; pour les réutiliser sur plusieurs repositories, déplacez-les vers
+`~/.agents/skills/`. Les fichiers d'agents, eux, ne changent pas.
+
+**`user-invocable`** contrôle l'appel d'une skill par un slash (`/nom-de-skill`).
+Il vaut **`true` par défaut** : une skill est donc invocable au slash même sans
+déclarer le champ (voir `fastapi`, qui l'omet). Mettez `user-invocable: false`
+pour la réserver au modèle et la masquer des commandes slash (voir
+`python-testing`).
 
 ## Démarrage rapide
 
@@ -112,12 +123,14 @@ vibe -p "run all tests and report failures" --output json
 
 ```
 solutions-vibe-starter/
+├── .agents/
+│   └── skills/                       # répertoire standard, indépendant de l'outil
+│       └── ...                       # fastapi · company-conventions · rfc-writer
+│                                     # security-review · python-testing
 ├── .vibe/
 │   ├── agents/{dev,po,devops}.toml   # agents par rôle avec permissions cadrées
 │   ├── hooks.toml                    # auto-formatage + journal d'audit de conformité
-│   ├── config.toml.example           # configuration des serveurs MCP (assainie)
-│   └── skills/                       # fastapi · company-conventions · rfc-writer
-│       └── ...                       # security-review · python-testing
+│   └── config.toml.example           # configuration des serveurs MCP (assainie)
 ├── AGENTS.md                         # conventions du projet (chargées automatiquement)
 ├── DEMO.md                           # script du pas-à-pas live
 ├── apps/

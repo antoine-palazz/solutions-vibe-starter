@@ -1,7 +1,6 @@
 ---
 name: security-review
 description: Checklist de revue de sécurité pour les changements de code — secrets, validation des entrées, autorisation et journalisation d'audit
-user-invocable: true
 ---
 
 # Revue de sécurité

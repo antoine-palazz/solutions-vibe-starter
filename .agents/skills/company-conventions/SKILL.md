@@ -1,7 +1,6 @@
 ---
 name: company-conventions
 description: Conventions d'ingénierie de l'entreprise — messages de commit, logging, templates de PR, revue de code
-user-invocable: true
 ---
 
 # Conventions d'ingénierie — Caisse des Dépôts
