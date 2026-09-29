@@ -304,11 +304,11 @@ class TestWindowReset:
 
         # Set initial time (timezone-aware)
         base_time = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-        
+
         # Mock datetime.now to return our base_time
         mock_datetime.now.return_value = base_time
         mock_datetime.side_effect = lambda *args, **kwargs: datetime(*args, **kwargs)
-        
+
         # Ensure timezone.utc is available
         mock_timezone.utc = timezone.utc
 

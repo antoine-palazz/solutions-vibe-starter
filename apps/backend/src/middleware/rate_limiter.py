@@ -103,9 +103,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ):
             self.client_requests[client_ip].popleft()
 
-    async def dispatch(
-        self, request: Request, call_next: Callable
-    ) -> JSONResponse:
+    async def dispatch(self, request: Request, call_next: Callable) -> JSONResponse:
         """Process the request through the rate limiting middleware.
 
         Args:

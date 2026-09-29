@@ -12,9 +12,7 @@ from routers import health
 APP_NAME = os.getenv("APP_NAME", "solutions-vibe-starter")
 RATE_LIMIT_MAX_REQUESTS = int(os.getenv("RATE_LIMIT_MAX_REQUESTS", "100"))
 RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
-RATE_LIMIT_EXCLUDE_PATHS = os.getenv(
-    "RATE_LIMIT_EXCLUDE_PATHS", "/api/health"
-).split(",")
+RATE_LIMIT_EXCLUDE_PATHS = os.getenv("RATE_LIMIT_EXCLUDE_PATHS", "/api/health").split(",")
 
 
 @asynccontextmanager
