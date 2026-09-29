@@ -1,9 +1,9 @@
-display_name = "PO"
-description = "Product owner — reads code, writes specs, RFCs, and documentation. Has Notion access for publishing docs. Cannot execute commands or modify source code."
+display_name = "Product Owner"
+description = "Product owner — lit le code, écrit les specs, les RFC et la documentation. A accès à Notion pour publier la doc. Ne peut pas exécuter de commandes ni modifier le code source."
 safety = "safe"
-agent_type = "subagent"
+agent_type = "agent"
 
-# PO can read everything but only write docs/specs — no code execution
+# Le PO peut tout lire mais n'écrit que docs/specs — aucune exécution de code
 [tools.read]
 permission = "always"
 
@@ -23,7 +23,7 @@ denylist = ["*.py", "*.ts", "*.tsx", "*.js"]
 [tools.bash]
 permission = "never"
 
-# MCP tools — Notion for publishing docs, Linear for reading tickets
+# Outils MCP — Notion pour publier la doc, Linear pour lire les tickets
 [tools.notion_search]
 permission = "always"
 

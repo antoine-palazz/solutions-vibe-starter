@@ -30,14 +30,14 @@ export default function Home() {
         const res = await fetch(`${API_URL}/api/health/check`, { cache: "no-store" });
         if (!res.ok) {
           setHealth(null);
-          setError(`backend returned ${res.status}`);
+          setError(`le backend a renvoyé ${res.status}`);
           return;
         }
         setHealth((await res.json()) as Health);
         setError(null);
       } catch (e) {
         setHealth(null);
-        setError(e instanceof Error ? e.message : "request failed");
+        setError(e instanceof Error ? e.message : "échec de la requête");
       }
     }
     load();
@@ -48,22 +48,23 @@ export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center gap-6 px-6">
       <header>
-        <h1 className="text-2xl font-semibold">Vibe Starter</h1>
+        <h1 className="text-2xl font-semibold">Vibe Starter — Caisse des Dépôts</h1>
         <p className="text-sm text-neutral-400">
-          Minimal placeholder app. The point of this repo is the{" "}
-          <code className="font-mono text-neutral-200">.vibe/</code> configuration.
+          Application d'exemple minimale. Tout l'intérêt de ce repo est la{" "}
+          configuration <code className="font-mono text-neutral-200">.vibe/</code> et{" "}
+          <code className="font-mono text-neutral-200">.agents/skills/</code>.
         </p>
       </header>
 
       <section className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5">
         <div className="mb-4 flex items-center justify-between">
-          <span className="text-sm text-neutral-400">Backend health</span>
+          <span className="text-sm text-neutral-400">Santé du backend</span>
           <Badge value={health?.status ?? "NOT_INITIALIZED"} />
         </div>
 
         {error && (
           <p className="font-mono text-xs text-rose-400">
-            {error} — is the backend running on {API_URL}?
+            {error} — le backend tourne-t-il sur {API_URL}&nbsp;?
           </p>
         )}
 
@@ -80,7 +81,7 @@ export default function Home() {
       </section>
 
       <p className="text-center font-mono text-xs text-neutral-600">
-        GET {API_URL}/api/health/check · refreshes every 5s
+        GET {API_URL}/api/health/check · rafraîchi toutes les 5 s
       </p>
     </main>
   );

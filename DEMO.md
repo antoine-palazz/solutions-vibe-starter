@@ -1,178 +1,207 @@
-# Demo walkthrough — a day of dev with Vibe
+# Pas-à-pas de démo — une journée de dev avec Vibe
 
-A ~20-minute live session: **three agents** (dev / po / devops), **two issues**
-(a bug, then a feature), from investigation to PR review to deploy. The repo ships
-at the "before" state; the finished code is on the **`solution`** branch as a
-fallback.
+Une session live d'environ 20 minutes : **trois agents** (dev / po / devops), **deux
+tickets** (un bug, puis une fonctionnalité), de l'investigation à la revue de PR
+jusqu'au déploiement. Le repo est livré dans l'état « avant » ; la version aboutie
+se reconstruit en rejouant le scénario ci-dessous.
 
-> This is a script, not a transcript — adapt the prompts to your style. The point
-> is to show *how* you work with Vibe: sub-agents, plan mode, PR review, role-based
-> agents, skills, hooks.
-
----
-
-## The two issues
-
-Track these in whatever your team uses — GitHub Issues, Linear, Jira, etc. The
-agents reach it through that tool's **MCP server**. Linear and Notion are only the
-examples wired in `.vibe/config.toml.example`; swap in any software that exposes an
-MCP (including an internal/custom one). Or just keep the issues in this file and
-point the agent at it.
-
-**Issue #1 — Bug, urgent.** `GET /api/health/check` returns **500** when the
-database is down. It should degrade gracefully: return **200** with a per-service
-status so monitoring/readiness probes get a stable signal. Right now one failing
-dependency takes the whole endpoint down.
-
-**Issue #2 — Feature.** Add **request rate limiting** to the API to protect it as
-usage grows (brute-force protection on sensitive routes, fair usage). Health
-checks must stay un-throttled.
+> C'est un script, pas une transcription — adaptez les prompts à votre style.
+> L'objectif est de montrer *comment* on travaille avec Vibe : sous-agents, plan
+> mode, revue de PR, agents par rôle, skills, hooks.
 
 ---
 
-## Setup tour (2–3 min)
+## Les deux tickets
 
-Give a quick tour of the `.vibe/` setup *before* touching any code — this is the
-part that lands: **"you don't configure a tool, you configure a team."**
+**Les deux tickets sont définis ci-dessous, directement dans ce fichier** — c'est la
+voie la plus simple pour la démo : pointez l'agent dessus (« lis le ticket n°1 dans
+`DEMO.md` et résume-le »), aucun outil externe requis.
+
+En conditions réelles, vous les suivriez plutôt dans l'outil de votre équipe — Jira,
+Confluence, GitHub Issues, Linear, etc. — auquel les agents accèdent via son
+**serveur MCP**. Linear et Notion ne sont que les exemples câblés dans
+`.vibe/config.toml.example` ; remplacez-les par le logiciel de votre choix exposant
+un MCP (y compris interne/sur mesure — par exemple votre Jira ou votre Confluence via
+la gateway MCP interne CDC). *(Si le MCP Linear affiche une erreur d'authentification
+au lancement, ignorez-la : ce n'est pas nécessaire pour la démo — utilisez les
+tickets ci-dessous.)*
+
+**Ticket n°1 — Bug, urgent.** `GET /api/health/check` renvoie **500** quand la base
+de données est indisponible. Il devrait se dégrader proprement : renvoyer **200**
+avec un statut par service, pour que les sondes de supervision/readiness reçoivent un
+signal stable. Aujourd'hui, une seule dépendance en échec fait tomber tout
+l'endpoint.
+
+**Ticket n°2 — Fonctionnalité.** Ajouter la **limitation de débit (rate limiting)**
+des requêtes à l'API pour la protéger à mesure que l'usage grandit (protection
+anti-force brute sur les routes sensibles, usage équitable). Les health-checks
+doivent rester non limités.
+
+---
+
+## Visite de la configuration (2–3 min)
+
+Faites un tour rapide de la configuration `.vibe/` *avant* de toucher au code —
+c'est la partie qui marque : **« on ne configure pas un outil, on configure une
+équipe. »**
 
 ```bash
 cd solutions-vibe-starter
 vibe --agent dev
 ```
 
-**Agents — `.vibe/agents/*.toml`.** Cycle with **`Shift+Tab`**: dev / po / devops.
-Open `dev.toml` and show the permission model — `permission = "always" | "ask" |
-"never"` per tool, with `allowlist` / `denylist`. *"Three roles: the dev codes, the
-PO writes docs and can't run anything, the devops deploys but can't touch app code.
-Each is a few lines of TOML."*
+**Agents — `.vibe/agents/*.toml`.** Défilez avec **`Shift+Tab`** : dev / po /
+devops. Ouvrez `dev.toml` et montrez le modèle de permissions — `permission =
+"always" | "ask" | "never"` par outil, avec `allowlist` / `denylist`. *« Trois
+rôles : le dev code, le PO écrit la doc et ne peut rien exécuter, le devops déploie
+mais ne peut pas toucher au code applicatif. Chacun tient en quelques lignes de
+TOML. »*
 
-**Skills — `.vibe/skills/`.** Reusable playbooks the agents pull in automatically:
-`fastapi`, `company-conventions`, `rfc-writer`, `security-review`, `python-testing`.
-Open one (e.g. `security-review/SKILL.md`). *"Skills are the company toolbox —
-best-practices that travel across repos. Committed here for this repo; move them to
-`~/.vibe/skills/` to share them everywhere."*
+**Skills — `.agents/skills/`.** Des playbooks réutilisables que les agents mobilisent
+automatiquement : `fastapi`, `company-conventions`, `rfc-writer`, `security-review`,
+`python-testing`. Ouvrez-en un (par ex. `security-review/SKILL.md`). *« Les skills
+sont la boîte à outils de l'entreprise — des bonnes pratiques qui voyagent d'un repo
+à l'autre. Commitées ici pour ce repo ; déplacez-les vers `~/.agents/skills/` pour
+les partager partout. »* Insistez sur l'emplacement : `.agents/skills/` est le
+**répertoire standard, indépendant de l'outil** (le même que lisent Vibe, Claude,
+OpenCode…), et non un dossier propriétaire — vos bonnes pratiques restent portables
+si l'équipe change d'assistant. *« Un point qui compte pour une institution
+souveraine : on ne se verrouille pas sur un outil. »*
 
-**Connectors (MCP) — `.vibe/config.toml.example` + `/mcp`.** Run `/mcp` to show the
-connected servers — *"this is how the agents reach your tools."* Linear and Notion
-are just the examples wired here; replace them with whatever your team uses (Jira,
-Confluence, ServiceNow, an internal/custom MCP). The agent prompts don't change,
-only the server config.
+> **`user-invocable`.** Vous pouvez appeler une skill au slash (`/company-conventions`).
+> Ce champ vaut **`true` par défaut** — une skill est donc invocable même sans le
+> déclarer (voir `fastapi`, qui l'omet) ; mettez `user-invocable: false` pour la
+> réserver au modèle et la masquer des commandes slash (voir `python-testing`).
 
-**Hooks — `.vibe/hooks.toml`.** *"Automated actions after each turn."* Show the two:
-auto-format (ruff after edits) and an append-only audit log (`.vibe/audit.log`).
-*"For a regulated environment, that's an audit trail for free — we'll watch it fill
-up."*
+**Connecteurs (MCP) — `.vibe/config.toml.example` + `/mcp`.** Lancez `/mcp` pour
+afficher les serveurs connectés — *« voilà comment les agents atteignent vos
+outils. »* Linear et Notion ne sont que les exemples câblés ici ; remplacez-les par
+ce qu'utilise votre équipe (Jira, Confluence, ServiceNow, un MCP interne/sur
+mesure). Les prompts des agents ne changent pas, seule la config du serveur change.
 
-**Project handbook — `AGENTS.md`.** Loaded automatically. *"These are the project's
-conventions — the agent follows them without being told. It even states the rule
-we're about to see broken: health endpoints must never crash."*
+**Hooks — `.vibe/hooks.toml`.** *« Des actions automatisées après chaque tour. »*
+Montrez les deux : l'auto-formatage (ruff après les éditions) et un journal d'audit
+en ajout seul (`.vibe/audit.log`). *« Pour un environnement régulé, c'est une piste
+d'audit gratuite — on va la voir se remplir. »*
+
+**Guide du projet — `AGENTS.md`.** Chargé automatiquement. *« Ce sont les
+conventions du projet — l'agent les suit sans qu'on le lui dise. Il y est même écrit
+la règle qu'on est sur le point de voir enfreinte : les endpoints health ne doivent
+jamais crasher. »*
 
 ---
 
-## Issue #1 — investigate & fix the bug (`@dev`)
+## Ticket n°1 — investiguer et corriger le bug (`@dev`)
 
-**1. Reproduce it.**
+**1. Le reproduire.**
 ```bash
-uv run uvicorn main:app --app-dir apps/backend/src   # in a second terminal
+uv run uvicorn main:app --app-dir apps/backend/src   # dans un second terminal
 curl -s localhost:8000/api/health/check              # -> 500
 ```
-*"A health-check 500 — let's find out why."*
+*« Un health-check en 500 — trouvons pourquoi. »*
 
-**2. Read the issue.** *"Read issue #1 and summarize the bug."* (via MCP, or point
-it at the section above).
+**2. Lire le ticket.** *« Lis le ticket n°1 et résume le bug. »* (via MCP, ou en le
+pointant sur la section ci-dessus).
 
-**3. Dispatch a sub-agent to explore the codebase.**
-> *"Launch a sub-agent to map how the health check works — which router handles it,
-> what it depends on, and where the 500 could come from. Report back a short
-> summary."*
+**3. Déléguer l'exploration du code à un sous-agent.**
+> *« Lance un sous-agent pour cartographier le fonctionnement du health-check —
+> quel router le gère, de quoi il dépend, et d'où le 500 peut venir. Renvoie un
+> court résumé. »*
 
-Show the point: the sub-agent does the wide search and returns a digest, so the
-main session's context stays clean. It comes back with `routers/health.py` and the
-un-guarded database probe.
+Montrez l'intérêt : le sous-agent fait la recherche large et renvoie une synthèse,
+si bien que le contexte de la session principale reste propre. Il revient avec
+`routers/health.py` et la sonde base de données non protégée.
 
-**4. Plan mode — and review the plan.**
-- `Shift+Tab` → plan mode. *"Plan the fix for issue #1."*
-- The agent proposes: wrap each probe in try/except, return a per-service
-  `ServiceStatus(ERROR)` and an aggregate `DEGRADED`, add a regression test.
-- **Review it with the agent** — push back, adjust scope, then approve. *"Plan mode
-  means nothing runs until I say so."*
+**4. Plan mode — et revue du plan.**
+- `Shift+Tab` → plan mode. *« Planifie la correction du ticket n°1. »*
+- L'agent propose : envelopper chaque sonde dans un try/except, renvoyer un
+  `ServiceStatus(ERROR)` par service et un `DEGRADED` agrégé, ajouter un test de
+  régression.
+- **Passez-le en revue avec l'agent** — challengez, ajustez le périmètre, puis
+  approuvez. *« Le plan mode signifie que rien ne s'exécute avant que je le dise. »*
 
-**5. Implement.** `Shift+Tab` → work mode. The agent edits `routers/health.py` and
-adds a test. The `fastapi` and `python-testing` skills guide the patterns
-(degraded status, `TestClient`). `AGENTS.md` already states the rule it's enforcing:
-*"health endpoints must never crash."*
+**5. Implémenter.** `Shift+Tab` → work mode. L'agent édite `routers/health.py` et
+ajoute un test. Les skills `fastapi` et `python-testing` guident les patterns
+(statut dégradé, `TestClient`). `AGENTS.md` énonce déjà la règle qu'il applique :
+*« les endpoints health ne doivent jamais crasher. »*
 
-**6. Verify.**
+**6. Vérifier.**
 ```bash
-uv run pytest                              # green, incl. the new regression test
-curl -s localhost:8000/api/health/check    # -> 200, status DEGRADED (DB still down)
+uv run pytest                              # vert, y compris le nouveau test de régression
+curl -s localhost:8000/api/health/check    # -> 200, statut DEGRADED (DB toujours down)
 ```
 
-**7. Open a PR.** *"Commit with a conventional-commit message and open a PR for
-issue #1."* The `company-conventions` skill shapes the message; the PR is created
-via MCP / `gh`.
+**7. Ouvrir une PR.** *« Commite avec un message en commit conventionnel et ouvre
+une PR pour le ticket n°1. »* La skill `company-conventions` met en forme le
+message ; la PR est créée via MCP / `gh` (ou une PR GitLab dans votre stack).
 
-**8. Review the PR.** Read the diff and leave **inline comments** — either on
-GitHub (review-with-comments on the repo) or directly in Vibe (the VS Code diff
-view, `@routers/health.py` references). Example comment: *"add a NOT_INITIALIZED
-case for a DB that's reachable but empty."* Then: *"address the review comments"* →
-the agent pushes a follow-up commit. Merge when green.
-
----
-
-## Issue #2 — design first, then build (`@po` → `@dev`)
-
-**1. Switch to the PO agent.** `Shift+Tab` → `@po`. *"This agent reads code and
-writes docs, but can't run anything."*
-
-**2. Write an RFC with the specialized agent.**
-> *"Draft an RFC for the rate limiting approach in `docs/rfcs/rate-limiting.md`.
-> Read the codebase, explain the design, alternatives, and tradeoffs. Use the
-> rfc-writer skill."*
-
-The PO agent reads the code (read-only), uses the `rfc-writer` template, and writes
-the doc. Try to make it edit a `.py` file — it can't (permissions in action).
-Review the RFC in ~30s.
-
-**3. Switch back to dev and implement.** `Shift+Tab` → `@dev`. *"Implement the rate
-limiting from the RFC."* It adds the middleware (slowapi), env-var config, excludes
-the health route, and writes tests. → PR → review → merge (same loop as issue #1).
+**8. Passer la PR en revue.** Lisez le diff et laissez des **commentaires inline** —
+soit sur GitHub/GitLab (revue avec commentaires sur le repo), soit directement dans
+Vibe (la vue diff de VS Code, avec des références `@routers/health.py`). Exemple de
+commentaire : *« ajoute un cas NOT_INITIALIZED pour une DB joignable mais vide. »*
+Ensuite : *« traite les commentaires de revue »* → l'agent pousse un commit de
+suivi. Mergez quand c'est vert.
 
 ---
 
-## Deploy (`@devops`)
+## Ticket n°2 — concevoir d'abord, construire ensuite (`@po` → `@dev`)
 
-`Shift+Tab` → `@devops`. *"Build and run the stack with docker compose, then verify
-the health check and the rate limit."*
+**1. Basculer sur l'agent PO.** `Shift+Tab` → `@po`. *« Cet agent lit le code et
+écrit la doc, mais ne peut rien exécuter. »*
+
+**2. Rédiger une RFC avec l'agent spécialisé.**
+> *« Rédige une RFC pour l'approche de rate limiting dans
+> `docs/rfcs/rate-limiting.md`. Lis le code, explique la conception, les
+> alternatives et les compromis. Utilise la skill rfc-writer. »*
+
+L'agent PO lit le code (en lecture seule), utilise le template `rfc-writer` et écrit
+le document. Essayez de lui faire éditer un fichier `.py` — il ne peut pas (les
+permissions à l'œuvre). Passez la RFC en revue en ~30 s.
+
+**3. Repasser sur dev et implémenter.** `Shift+Tab` → `@dev`. *« Implémente le rate
+limiting à partir de la RFC. »* Il ajoute un middleware de rate limiting (ici en
+mémoire, sans dépendance externe — le pattern `slowapi` reste une alternative), la
+config par variables d'environnement (`RATE_LIMIT_REQUESTS` / `RATE_LIMIT_WINDOW_SECONDS`),
+un endpoint de démonstration `/api/demo/ping`, exclut la route health et écrit des
+tests. → PR → revue → merge (même boucle que le ticket n°1).
+
+---
+
+## Déployer (`@devops`)
+
+`Shift+Tab` → `@devops`. *« Build et lance la stack avec docker compose, puis vérifie
+le health-check et la limitation de débit. »*
 ```bash
 docker compose -f deployment/docker/docker-compose.yml up --build
 curl -s localhost:8000/api/health/check          # 200
 for i in $(seq 1 70); do curl -s -o /dev/null -w "%{http_code} " localhost:8000/api/demo/ping; done   # ... 429
 ```
-The devops agent has docker rights but **cannot** edit `apps/` — show the denied
-edit.
+L'agent devops a les droits docker mais **ne peut pas** éditer `apps/` — montrez
+l'édition refusée.
 
 ---
 
-## Close the loop
+## Boucler la boucle
 
-- *"Update issues #1 and #2: mark done, add a summary comment."* (via MCP).
-- **Hooks:** after each edit the code was auto-formatted, and every agent turn is
-  appended to `.vibe/audit.log` — open it. *"For a regulated environment, that's an
-  audit trail for free."*
-- **Programmatic mode** for CI/CD:
+- *« Mets à jour les tickets n°1 et n°2 : passe-les en terminé, ajoute un
+  commentaire de synthèse. »* (via MCP).
+- **Hooks :** après chaque édition le code a été auto-formaté, et chaque tour d'agent
+  est ajouté à `.vibe/audit.log` — ouvrez-le. *« Pour un environnement régulé, c'est
+  une piste d'audit gratuite. »*
+- **Mode programmatique** pour la CI/CD :
   ```bash
   vibe -p "run all tests and report failures" --output json
   ```
 
 ---
 
-## Epilogue
+## Épilogue
 
-Three agents, two issues: a bug fixed, a feature designed and built, the app
-deployed, the tickets closed — all audited. You don't configure a tool; you
-configure a *team*. Each agent has its role, its permissions, its skills. And it
-all runs on your own infrastructure.
+Trois agents, deux tickets : un bug corrigé, une fonctionnalité conçue et
+construite, l'app déployée, les tickets clôturés — le tout audité. On ne configure
+pas un outil ; on configure une *équipe*. Chaque agent a son rôle, ses permissions,
+ses skills. Et tout tourne sur votre propre infrastructure.
 
-> **Fallback:** the finished code is on the `solution` branch — `git switch solution`
-> — if anything stalls during the live demo.
+> **Repli :** si quelque chose se bloque pendant la démo live, rejouez le scénario
+> étape par étape ci-dessus — le fil conducteur suffit à reconstruire la version
+> aboutie.
