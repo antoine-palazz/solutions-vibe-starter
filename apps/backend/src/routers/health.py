@@ -19,8 +19,11 @@ class HealthCheckResult(BaseModel):
 
 def _check_database() -> ServiceStatus:
     """Probe the database by opening a TCP connection."""
-    with socket.create_connection((DB_HOST, DB_PORT), timeout=1):
-        return ServiceStatus(status=Status.OK)
+    try:
+        with socket.create_connection((DB_HOST, DB_PORT), timeout=1):
+            return ServiceStatus(status=Status.OK)
+    except (socket.gaierror, ConnectionRefusedError, TimeoutError, OSError) as e:
+        return ServiceStatus(status=Status.ERROR, details=f"Database connection failed: {str(e)}")
 
 
 @router.get("/check", response_model=HealthCheckResult)
